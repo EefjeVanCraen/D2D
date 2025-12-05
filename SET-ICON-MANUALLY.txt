@@ -1,0 +1,40 @@
+HOW TO SET THE ICON MANUALLY
+=============================
+
+If the icon still doesn't show on the shortcut, follow these steps:
+
+METHOD 1: Through Shortcut Properties
+---------------------------------------
+1. Right-click the "Day2Day Platform" shortcut on your desktop
+2. Select "Properties"
+3. Click the "Change Icon..." button
+4. Click "Browse..." 
+5. Navigate to: C:\Users\vancraee\OneDrive - moodys.com\GPG\Credit Strategy\Cursor\Projects\Day2Day Platform
+6. Select "CnG logo.png" (or "CnG logo.ico" if it exists)
+7. Click "Open", then "OK", then "Apply"
+
+METHOD 2: Refresh Icon Cache
+------------------------------
+1. Press Windows Key + R
+2. Type: ie4uinit.exe -show
+3. Press Enter
+4. This refreshes the Windows icon cache
+
+METHOD 3: Use Online ICO Converter
+-----------------------------------
+1. Go to https://convertio.co/png-ico/ or similar
+2. Upload "CnG logo.png"
+3. Download the ICO file
+4. Save it as "CnG logo.ico" in the project folder
+5. Run the shortcut creation script again
+
+The shortcut should now display your logo!
+
+
+
+
+
+
+
+
+

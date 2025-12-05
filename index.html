@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Day2Day Platform - Daily Task and Idea Management">
+    <title>Day2Day - Eefje Van Craen</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/png" href="CnG logo.png">
+    <script>
+        // Prevent archive mode - ensure proper MIME type
+        if (window.location.protocol === 'file:') {
+            console.log('Running in local file mode - this is normal and safe');
+        }
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <img src="CnG logo.png" alt="Day2Day Logo" class="logo">
+            <h1 class="app-name">Day2Day</h1>
+        </div>
+        <div class="header-right">
+            <div class="date-time">
+                <span id="current-date"></span>
+                <span id="current-time"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="greeting">
+                <span id="greeting-text"></span>
+                <span class="user-name">Eefje</span>
+            </div>
+            
+            <div class="birthday-countdown">
+                <div class="countdown-item">
+                    <label>My Birthday:</label>
+                    <span id="my-birthday-countdown"></span>
+                </div>
+                <div class="countdown-item">
+                    <label>Next Birthday:</label>
+                    <span id="next-birthday-countdown"></span>
+                </div>
+            </div>
+
+            <div class="sidebar-filter">
+                <label style="font-weight: 600; margin-bottom: 8px; display: block; font-size: 13px;">Filter by Department:</label>
+                <select id="sidebar-dept-filter" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-section="dashboard">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-btn" data-section="tasks">
+                    <span class="icon">✓</span>
+                    <span>Tasks</span>
+                </button>
+                <button class="nav-btn" data-section="ideas">
+                    <span class="icon">💡</span>
+                    <span>Ideas</span>
+                </button>
+                <button class="nav-btn" data-section="summaries">
+                    <span class="icon">📝</span>
+                    <span>Weekly Summaries</span>
+                </button>
+                <button class="nav-btn" data-section="meetings">
+                    <span class="icon">🤝</span>
+                    <span>Meetings</span>
+                </button>
+                <button class="nav-btn" data-section="asana">
+                    <span class="icon">📋</span>
+                    <span>Asana</span>
+                </button>
+                <button class="nav-btn" data-section="birthdays">
+                    <span class="icon">🎂</span>
+                    <span>Birthdays</span>
+                </button>
+                <button class="nav-btn" data-section="squads">
+                    <span class="icon">👥</span>
+                    <span>Squads</span>
+                </button>
+                <button class="nav-btn" data-section="credit-circle">
+                    <span class="icon">⭕</span>
+                    <span>Credit Circle</span>
+                </button>
+                <button class="nav-btn" data-section="org-charts">
+                    <span class="icon">📊</span>
+                    <span>Org Charts</span>
+                </button>
+                <button class="nav-btn" data-section="recycle-bin">
+                    <span class="icon">🗑️</span>
+                    <span>Recycle Bin</span>
+                </button>
+                <button class="nav-btn" id="settings-btn">
+                    <span class="icon">⚙️</span>
+                    <span>Settings</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-actions">
+                <button class="action-btn" id="export-btn">
+                    <span class="icon">📥</span>
+                    <span>Export All</span>
+                </button>
+                <button class="action-btn" id="print-btn">
+                    <span class="icon">🖨️</span>
+                    <span>Print</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <section id="dashboard-section" class="content-section active">
+                <button class="add-widget-btn" id="add-widget-btn">+ Add Widget</button>
+                <div class="dashboard-workspace" id="dashboard-workspace">
+                    <!-- Widgets will be dynamically added here -->
+                </div>
+            </section>
+
+            <!-- Tasks View -->
+            <section id="tasks-section" class="content-section">
+                <div class="section-header">
+                    <h2>Tasks</h2>
+                    <div class="filter-bar">
+                        <input type="text" id="task-search" placeholder="Search tasks...">
+                        <select id="task-filter-department">
+                            <option value="">All Departments</option>
+                        </select>
+                        <select id="task-filter-tag">
+                            <option value="">All Tags</option>
+                        </select>
+                        <select id="task-filter-priority">
+                            <option value="">All Priorities</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                        <select id="task-filter-status">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="completed">Completed</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" id="add-task-btn">+ Add Task</button>
+                </div>
+                <div class="tasks-list" id="tasks-list"></div>
+            </section>
+
+            <!-- Ideas View -->
+            <section id="ideas-section" class="content-section">
+                <div class="section-header">
+                    <h2>Ideas</h2>
+                    <div class="filter-bar">
+                        <input type="text" id="idea-search" placeholder="Search ideas...">
+                        <select id="idea-filter-department">
+                            <option value="">All Departments</option>
+                        </select>
+                        <select id="idea-filter-tag">
+                            <option value="">All Tags</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" id="add-idea-btn">+ Add Idea</button>
+                </div>
+                <div class="ideas-list" id="ideas-list"></div>
+            </section>
+
+            <!-- Summaries View -->
+            <section id="summaries-section" class="content-section">
+                <div class="section-header">
+                    <h2>Weekly Summaries</h2>
+                </div>
+                <div class="summaries-list" id="summaries-list"></div>
+            </section>
+
+            <!-- Meetings View -->
+            <section id="meetings-section" class="content-section">
+                <div class="section-header">
+                    <h2>Meetings</h2>
+                    <div class="filter-bar">
+                        <input type="text" id="meeting-search" placeholder="Search meetings...">
+                        <select id="meeting-filter-department">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" id="add-meeting-btn">+ Add Meeting</button>
+                </div>
+                <div class="meetings-list" id="meetings-list"></div>
+            </section>
+
+            <!-- Asana View -->
+            <section id="asana-section" class="content-section">
+                <div class="section-header">
+                    <h2>Asana - Weekly Summaries</h2>
+                </div>
+                <div id="asana-content" style="padding: 20px;"></div>
+            </section>
+
+            <!-- Birthdays View -->
+            <section id="birthdays-section" class="content-section">
+                <div class="section-header">
+                    <h2>Birthday Calendar</h2>
+                    <button class="btn-primary" id="add-birthday-btn">+ Add Birthday</button>
+                </div>
+                <div class="birthdays-list" id="birthdays-list"></div>
+            </section>
+
+            <!-- Squads View -->
+            <section id="squads-section" class="content-section">
+                <div class="section-header">
+                    <h2>Squads</h2>
+                    <div class="filter-bar">
+                        <input type="text" id="squad-search" placeholder="Search squads...">
+                    </div>
+                    <div>
+                        <button class="btn-primary" id="import-squads-btn">📥 Import from Excel</button>
+                        <button class="btn-primary" id="add-squad-btn" style="margin-left: 10px;">+ Add Squad</button>
+                        <button class="btn-secondary" id="delete-all-squads-btn" style="margin-left: 10px; background: var(--danger-color); color: white;">🗑️ Delete All</button>
+                    </div>
+                </div>
+                <div class="squads-grid" id="squads-container"></div>
+            </section>
+
+            <!-- Credit Circle View -->
+            <section id="credit-circle-section" class="content-section">
+                <div class="section-header">
+                    <h2>Credit Circle</h2>
+                    <button class="btn-primary" id="add-credit-circle-update-btn">+ Add Credit Circle Update</button>
+                </div>
+                <div id="credit-circle-container">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⭕</div>
+                        <p>Credit Circle content coming soon...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Org Charts View -->
+            <section id="org-charts-section" class="content-section">
+                <!-- Org Charts List View -->
+                <div id="org-charts-list-section">
+                    <div class="section-header">
+                        <h2>Organizational Charts</h2>
+                        <button class="btn-primary" id="add-org-chart-btn">+ Create Org Chart</button>
+                    </div>
+                    <div class="org-charts-list" id="org-charts-list"></div>
+                </div>
+
+                <!-- Org Chart View -->
+                <div id="org-chart-view-section" style="display: none;">
+                    <div class="section-header">
+                        <div>
+                            <button class="btn-secondary" onclick="orgChartManager.backToOrgChartsList()" style="margin-right: 10px;">← Back</button>
+                            <h2 id="org-chart-view-title"></h2>
+                        </div>
+                        <button class="btn-primary" onclick="orgChartManager.openPositionModal(orgChartManager.currentChartId)">+ Add Position</button>
+                    </div>
+                    <div class="org-chart-view-container">
+                        <div class="org-chart-positions-container">
+                            <h3>Positions</h3>
+                            <div id="org-chart-positions-list"></div>
+                        </div>
+                        <div class="org-chart-visual-container-wrapper">
+                            <h3>Visual Chart</h3>
+                            <div id="org-chart-visual"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recycle Bin View -->
+            <section id="recycle-bin-section" class="content-section">
+                <div class="section-header">
+                    <h2>Recycle Bin</h2>
+                </div>
+                <div class="recycle-bin-list" id="recycle-bin-list"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content" id="settings-modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="modal-close" id="settings-close">&times;</button>
+            </div>
+            <div class="modal-resize-handle" id="settings-resize-handle"></div>
+            <div class="modal-body">
+                <div class="settings-tabs">
+                    <button class="tab-btn active" data-tab="general">General</button>
+                    <button class="tab-btn" data-tab="appearance">Appearance</button>
+                    <button class="tab-btn" data-tab="departments">Departments</button>
+                    <button class="tab-btn" data-tab="tags">Tags</button>
+                    <button class="tab-btn" data-tab="credit-circle-members">Credit Circle Members</button>
+                    <button class="tab-btn" data-tab="meeting-types">Meeting Types</button>
+                    <button class="tab-btn" data-tab="priorities">Priorities</button>
+                    <button class="tab-btn" data-tab="backup">Backup</button>
+                </div>
+                
+                <div class="tab-content active" id="general-tab">
+                    <h3>General Settings</h3>
+                    <div class="setting-item">
+                        <label>Time Zone:</label>
+                        <select id="timezone-setting">
+                            <option value="CET" selected>CET (Central European Time)</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Auto-backup:</label>
+                        <input type="checkbox" id="auto-backup" checked>
+                        <span>Enable monthly automatic backups</span>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="appearance-tab">
+                    <h3>Sidebar Colors</h3>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px;">
+                        Customize the colors of the left sidebar ribbon
+                    </p>
+                    
+                    <div class="setting-item">
+                        <label>Sidebar Background (Top):</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="color" id="sidebar-bg-top" value="#ffffff" style="width: 60px; height: 40px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
+                            <input type="text" id="sidebar-bg-top-hex" value="#ffffff" style="flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Sidebar Background (Bottom):</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="color" id="sidebar-bg-bottom" value="#f9fafb" style="width: 60px; height: 40px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
+                            <input type="text" id="sidebar-bg-bottom-hex" value="#f9fafb" style="flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Greeting Card (Primary Color):</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="color" id="greeting-color-1" value="#4a90e2" style="width: 60px; height: 40px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
+                            <input type="text" id="greeting-color-1-hex" value="#4a90e2" style="flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Greeting Card (Secondary Color):</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="color" id="greeting-color-2" value="#7b68ee" style="width: 60px; height: 40px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
+                            <input type="text" id="greeting-color-2-hex" value="#7b68ee" style="flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Active Nav Button Color:</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="color" id="nav-active-color" value="#4a90e2" style="width: 60px; height: 40px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
+                            <input type="text" id="nav-active-color-hex" value="#4a90e2" style="flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Nav Button Hover Color:</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="color" id="nav-hover-color" value="#4a90e2" style="width: 60px; height: 40px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
+                            <input type="text" id="nav-hover-color-hex" value="#4a90e2" style="flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-top: 30px; margin-bottom: 15px; border-top: 1px solid var(--border-color); padding-top: 20px;">Birthday Countdown Colors</h4>
+                    
+                    <div class="setting-item">
+                        <label>Birthday Countdown Background (Top):</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="color" id="birthday-bg-top" value="#fce4ec" style="width: 60px; height: 40px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
+                            <input type="text" id="birthday-bg-top-hex" value="#fce4ec" style="flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Birthday Countdown Background (Bottom):</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="color" id="birthday-bg-bottom" value="#f8bbd0" style="width: 60px; height: 40px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
+                            <input type="text" id="birthday-bg-bottom-hex" value="#f8bbd0" style="flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Birthday Countdown Text Color:</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="color" id="birthday-text-color" value="#c2185b" style="width: 60px; height: 40px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
+                            <input type="text" id="birthday-text-color-hex" value="#c2185b" style="flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions" style="margin-top: 20px;">
+                        <button class="btn-primary" id="save-colors-btn">Save Colors</button>
+                        <button class="btn-secondary" id="reset-colors-btn">Reset to Default</button>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="departments-tab">
+                    <h3>Departments & Sub-Departments</h3>
+                    <div class="manage-list">
+                        <div style="margin-bottom: 15px;">
+                            <input type="text" id="new-department" placeholder="Add new department">
+                            <button class="btn-small" id="add-department-btn">Add Department</button>
+                        </div>
+                        <div id="departments-list"></div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h4>Assign Tags to Departments</h4>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">
+                            Select a department and assign tags to it
+                        </p>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Department:</label>
+                                <select id="dept-tag-select">
+                                    <option value="">Select Department</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Tags:</label>
+                                <div id="dept-tags-container" style="display: flex; flex-wrap: wrap; gap: 8px; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; min-height: 40px;">
+                                    <span style="color: var(--text-secondary); font-size: 12px;">Select a department first</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="meeting-types-tab">
+                    <h3>Meeting Types</h3>
+                    <div class="manage-list">
+                        <input type="text" id="new-meeting-type" placeholder="Add new meeting type">
+                        <button class="btn-small" id="add-meeting-type-btn">Add</button>
+                        <ul id="meeting-types-list"></ul>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tags-tab">
+                    <h3>Tags</h3>
+                    <div class="manage-list">
+                        <input type="text" id="new-tag" placeholder="Add new tag">
+                        <button class="btn-small" id="add-tag-btn">Add</button>
+                        <ul id="tags-list"></ul>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="credit-circle-members-tab">
+                    <h3>Credit Circle Members</h3>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 15px;">
+                        Add members who participate in Credit Circle meetings. These members will be available for selection when creating Credit Circle updates.
+                    </p>
+                    <div class="manage-list">
+                        <div style="margin-bottom: 15px;">
+                            <input type="text" id="new-credit-circle-member" placeholder="Enter member name">
+                            <button class="btn-small" id="add-credit-circle-member-btn">Add Member</button>
+                        </div>
+                        <ul id="credit-circle-members-list"></ul>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="priorities-tab">
+                    <h3>Priorities</h3>
+                    <p>Priorities are fixed: High, Medium, Low</p>
+                </div>
+
+                <div class="tab-content" id="backup-tab">
+                    <h3>Backup & Restore</h3>
+                    <div style="margin-bottom: 20px;">
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px;">
+                            <strong>Automatic Daily Backups:</strong> Your data is automatically backed up daily. 
+                            Backup files are saved directly to your OneDrive folder for automatic cloud sync.
+                        </p>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 15px;">
+                            <strong>Backup Location:</strong><br>
+                            <code style="background: #f0f0f0; padding: 4px 8px; border-radius: 4px; font-size: 11px;">
+                                Day2Day Platform\backups\
+                            </code>
+                            <br><span style="font-size: 11px; color: var(--success-color);">✓ Automatically synced to OneDrive cloud</span>
+                        </p>
+                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                            <strong>Quick Move to OneDrive:</strong> If backups download to your Downloads folder, 
+                            double-click <code>move-backups-to-onedrive.bat</code> to automatically move them to the OneDrive backups folder.
+                        </p>
+                    </div>
+                    <button class="btn-primary" id="manual-backup-btn">Create Backup Now</button>
+                    <button class="btn-primary" id="export-json-btn" style="margin-top: 10px;">Export JSON to OneDrive</button>
+                    <div style="margin-top: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Restore from Backup File:</label>
+                        <input type="file" id="restore-file-input" accept=".json" style="margin-bottom: 10px; padding: 8px; width: 100%; border: 1px solid var(--border-color); border-radius: 6px;">
+                        <button class="btn-primary" id="restore-backup-btn">Restore from Selected File</button>
+                    </div>
+                    <div id="backup-status" style="margin-top: 15px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div id="task-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="task-modal-title">Add Task</h2>
+                <button class="modal-close" id="task-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="task-form">
+                    <div class="form-group">
+                        <label>Headline *</label>
+                        <input type="text" id="task-headline" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="task-description" rows="4"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Due Date</label>
+                            <input type="date" id="task-due-date">
+                        </div>
+                        <div class="form-group">
+                            <label>Priority</label>
+                            <select id="task-priority">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Departments</label>
+                        <div id="task-departments" class="checkbox-group">
+                            <!-- Checkboxes will be populated here -->
+                        </div>
+                        <small style="color: var(--text-secondary); font-size: 12px;">Select one or more departments</small>
+                    </div>
+                    <div class="form-group">
+                        <label>People</label>
+                        <div id="task-people" class="checkbox-group">
+                            <!-- Checkboxes will be populated here -->
+                        </div>
+                        <small style="color: var(--text-secondary); font-size: 12px;">Select one or more people</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Tag</label>
+                        <select id="task-tag">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Special Tag (Optional)</label>
+                        <select id="task-special-tag">
+                            <option value="">None</option>
+                            <option value="concerning-me">The one thing concerning me</option>
+                            <option value="need-to-know">The thing I really need you to know</option>
+                            <option value="want-to-know">The thing I really want to know</option>
+                            <option value="celebrate">The one thing I want to celebrate</option>
+                            <option value="random">The one random thing</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save</button>
+                        <button type="button" class="btn-secondary" id="task-cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Idea Modal -->
+    <div id="idea-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="idea-modal-title">Add Idea</h2>
+                <button class="modal-close" id="idea-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="idea-form">
+                    <div class="form-group">
+                        <label>Headline *</label>
+                        <input type="text" id="idea-headline" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="idea-description" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Departments</label>
+                        <div id="idea-departments" class="checkbox-group">
+                            <!-- Checkboxes will be populated here -->
+                        </div>
+                        <small style="color: var(--text-secondary); font-size: 12px;">Select one or more departments</small>
+                    </div>
+                    <div class="form-group">
+                        <label>People</label>
+                        <div id="idea-people" class="checkbox-group">
+                            <!-- Checkboxes will be populated here -->
+                        </div>
+                        <small style="color: var(--text-secondary); font-size: 12px;">Select one or more people</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Tag</label>
+                        <select id="idea-tag">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Special Tag (Optional)</label>
+                        <select id="idea-special-tag">
+                            <option value="">None</option>
+                            <option value="concerning-me">The one thing concerning me</option>
+                            <option value="need-to-know">The thing I really need you to know</option>
+                            <option value="want-to-know">The thing I really want to know</option>
+                            <option value="celebrate">The one thing I want to celebrate</option>
+                            <option value="random">The one random thing</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save</button>
+                        <button type="button" class="btn-secondary" id="idea-cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Birthday Modal -->
+    <div id="birthday-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="birthday-modal-title">Add Birthday</h2>
+                <button class="modal-close" id="birthday-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="birthday-form">
+                    <div class="form-group">
+                        <label>Name *</label>
+                        <input type="text" id="birthday-name" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Month *</label>
+                            <select id="birthday-month" required>
+                                <option value="">Select Month</option>
+                                <option value="01">January</option>
+                                <option value="02">February</option>
+                                <option value="03">March</option>
+                                <option value="04">April</option>
+                                <option value="05">May</option>
+                                <option value="06">June</option>
+                                <option value="07">July</option>
+                                <option value="08">August</option>
+                                <option value="09">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Day *</label>
+                            <input type="number" id="birthday-day" min="1" max="31" required placeholder="Day">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save</button>
+                        <button type="button" class="btn-secondary" id="birthday-cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Widget Modal -->
+    <div id="add-widget-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Widget</h2>
+                <button class="modal-close" id="add-widget-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-widget-form">
+                    <div class="form-group">
+                        <label>Widget Type *</label>
+                        <select id="new-widget-type" required>
+                            <option value="">Select Widget Type</option>
+                            <option value="asana">Asana</option>
+                            <option value="tasks-all">All Tasks</option>
+                            <option value="tasks-active">Active Tasks</option>
+                            <option value="birthdays">Birthdays</option>
+                            <option value="calendar">Calendar</option>
+                            <option value="tasks-completed">Completed Tasks</option>
+                            <option value="ideas">Ideas</option>
+                            <option value="meetings">Meetings</option>
+                            <option value="org-charts">Org Charts</option>
+                            <option value="tasks-overdue">Overdue Tasks</option>
+                            <option value="ideas-recent">Recent Ideas</option>
+                            <option value="tasks-today">Tasks Due Today</option>
+                            <option value="tasks-week">Tasks This Week</option>
+                            <option value="summaries">Weekly Summaries</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Widget Title</label>
+                        <input type="text" id="new-widget-title" placeholder="Leave empty for default title">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Width (px)</label>
+                            <input type="number" id="new-widget-width" value="400" min="300" max="1200">
+                        </div>
+                        <div class="form-group">
+                            <label>Height (px)</label>
+                            <input type="number" id="new-widget-height" value="300" min="200" max="800">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Create Widget</button>
+                        <button type="button" class="btn-secondary" id="add-widget-cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Widget Settings Modal -->
+    <div id="widget-settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Widget Settings</h2>
+                <button class="modal-close" id="widget-settings-close">&times;</button>
+            </div>
+            <div class="modal-body" id="widget-settings-content">
+                <!-- Widget-specific settings will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Org Chart Modal -->
+    <div id="org-chart-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="org-chart-modal-title">Create Org Chart</h2>
+                <button class="modal-close" id="org-chart-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="org-chart-form">
+                    <div class="form-group">
+                        <label>Org Chart Name *</label>
+                        <input type="text" id="org-chart-name" required placeholder="e.g., Company Structure">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="org-chart-description" rows="3" placeholder="Optional description"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save</button>
+                        <button type="button" class="btn-secondary" id="org-chart-cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Position Modal -->
+    <div id="position-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="position-modal-title">Add Position</h2>
+                <button class="modal-close" id="position-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="position-form">
+                    <div class="form-group">
+                        <label>Name *</label>
+                        <input type="text" id="position-name" required placeholder="e.g., John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="position-title" placeholder="e.g., Senior Manager">
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select id="position-department">
+                            <option value="">No Department</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Level *</label>
+                        <select id="position-level" required>
+                            <option value="0">Top Level (0)</option>
+                            <option value="-1">Level -1</option>
+                            <option value="-2">Level -2</option>
+                            <option value="-3">Level -3</option>
+                            <option value="-4">Level -4</option>
+                            <option value="-5">Level -5</option>
+                        </select>
+                        <small style="color: var(--text-secondary); font-size: 12px; display: block; margin-top: 4px;">
+                            Level 0 is the top position. Level -1 reports to Level 0, Level -2 reports to Level -1, and so on.
+                        </small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save</button>
+                        <button type="button" class="btn-secondary" id="position-cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meeting Modal -->
+    <div id="meeting-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="meeting-modal-title">Add Meeting</h2>
+                <button class="modal-close" id="meeting-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="meeting-form">
+                    <div class="form-group">
+                        <label>Meeting Title *</label>
+                        <input type="text" id="meeting-title" required placeholder="e.g., Q1 Planning Meeting">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="meeting-date">
+                        </div>
+                        <div class="form-group">
+                            <label>Internal/External *</label>
+                            <select id="meeting-internal-external" required>
+                                <option value="Internal" selected>Internal</option>
+                                <option value="External">External</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Department/Sub-Department</label>
+                        <select id="meeting-department">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="meeting-description" rows="10" style="min-height: 200px; max-height: 400px; overflow-y: auto; resize: vertical;"></textarea>
+                        <small style="color: var(--text-secondary); font-size: 12px; display: block; margin-top: 4px;">
+                            You can enter up to 500+ words. The text area will scroll as needed.
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label>People</label>
+                        <div id="meeting-people" class="checkbox-group">
+                            <small style="color: var(--text-secondary);">Select a department to see people</small>
+                        </div>
+                        <small style="color: var(--text-secondary); font-size: 12px;">People are shown based on selected department/sub-department</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Special Tag (Optional)</label>
+                        <select id="meeting-special-tag">
+                            <option value="">None</option>
+                            <option value="concerning-me">The one thing concerning me</option>
+                            <option value="need-to-know">The thing I really need you to know</option>
+                            <option value="want-to-know">The thing I really want to know</option>
+                            <option value="celebrate">The one thing I want to celebrate</option>
+                            <option value="random">The one random thing</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save</button>
+                        <button type="button" class="btn-secondary" id="meeting-cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Squad Modal -->
+    <div id="squad-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="squad-modal-title">New Squad</h2>
+                <button class="modal-close" id="squad-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="squad-form">
+                    <input type="hidden" id="squad-id">
+                    
+                    <div class="form-group">
+                        <label>Squad Name *</label>
+                        <input type="text" id="squad-name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            Squad Data
+                            <button type="button" class="btn-secondary" id="add-squad-data-field" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">+ Add Field</button>
+                        </label>
+                        <div id="squad-data-container" style="margin-top: 10px;">
+                            <!-- Dynamic data fields will be added here -->
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save Squad</button>
+                        <button type="button" class="btn-secondary" id="squad-cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Credit Circle Update Modal -->
+    <div id="credit-circle-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="credit-circle-modal-title">Add Credit Circle Update</h2>
+                <button class="modal-close" id="credit-circle-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="credit-circle-form">
+                    <div class="form-group">
+                        <label for="credit-circle-subject">Subject *</label>
+                        <input type="text" id="credit-circle-subject" required placeholder="Enter update subject">
+                    </div>
+                    <div class="form-group">
+                        <label for="credit-circle-date">Date *</label>
+                        <input type="date" id="credit-circle-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Members</label>
+                        <div id="credit-circle-members-container" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; background: var(--bg-color);">
+                            <!-- Checkboxes will be populated dynamically -->
+                        </div>
+                        <small style="display: block; margin-top: 5px; color: #666;">Select members who attended. Add members in Settings.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="credit-circle-summary">Summary</label>
+                        <textarea id="credit-circle-summary" rows="5" placeholder="Enter meeting summary"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="credit-circle-outcome">Outcomes</label>
+                        <textarea id="credit-circle-outcome" rows="5" placeholder="Enter outcomes (one per line)"></textarea>
+                        <small style="display: block; margin-top: 5px; color: #666;">Enter each outcome on a new line. You can create tasks from outcomes.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="credit-circle-follow-up">Follow Up</label>
+                        <textarea id="credit-circle-follow-up" rows="5" placeholder="Enter follow-up items (one per line)"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save Update</button>
+                        <button type="button" class="btn-secondary" id="credit-circle-cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <script src="js/data-manager.js"></script>
+    <script src="js/widget-manager.js"></script>
+    <script src="js/task-manager.js"></script>
+    <script src="js/idea-manager.js"></script>
+    <script src="js/birthday-manager.js"></script>
+    <script src="js/summary-manager.js"></script>
+    <script src="js/meeting-manager.js"></script>
+    <script src="js/org-chart-manager.js"></script>
+    <script src="js/squad-manager.js"></script>
+    <script src="js/credit-circle-manager.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
+
