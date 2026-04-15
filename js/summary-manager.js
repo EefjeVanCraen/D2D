@@ -31,11 +31,31 @@ class SummaryManager {
     }
 
     getCETTime(date) {
-        // CET is UTC+1 (or UTC+2 during DST)
-        // Simple approximation - in production, use a proper timezone library
-        const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
-        const cet = utc + (3600000 * 1); // UTC+1
-        return new Date(cet);
+        // Proper CET/CEST calculation using Intl API
+        try {
+            const formatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'Europe/Brussels',
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit',
+                hour12: false
+            });
+            const parts = formatter.formatToParts(date);
+            const get = (type) => parts.find(p => p.type === type)?.value || '0';
+            return new Date(
+                parseInt(get('year')),
+                parseInt(get('month')) - 1,
+                parseInt(get('day')),
+                parseInt(get('hour')),
+                parseInt(get('minute')),
+                parseInt(get('second'))
+            );
+        } catch (e) {
+            const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+            const month = date.getMonth();
+            const isSummer = month >= 2 && month <= 9;
+            const offset = isSummer ? 2 : 1;
+            return new Date(utc + (3600000 * offset));
+        }
     }
 
     createWeeklySummary() {
@@ -111,10 +131,43 @@ class SummaryManager {
         const summary = dataManager.getSummaries().find(s => s.id === summaryId);
         if (!summary) return;
 
-        const content = summary.content.replace(/\n/g, '<br>').replace(/##/g, '<h2>').replace(/###/g, '<h3>');
-        
-        alert(`Summary:\n\n${summary.content}`);
-        // In a full implementation, this would open a modal with formatted content
+        // Render markdown-like content to HTML
+        let html = (summary.content || '')
+            .replace(/### (.+)/g, '<h4 style="margin: 12px 0 6px; color: var(--primary-color);">$1</h4>')
+            .replace(/## (.+)/g, '<h3 style="margin: 16px 0 8px; color: var(--text-primary);">$1</h3>')
+            .replace(/^- (.+)/gm, '<li style="margin: 4px 0;">$1</li>')
+            .replace(/\n/g, '<br>');
+        // Wrap consecutive <li> items in <ul>
+        html = html.replace(/(<li[^>]*>.*?<\/li>(<br>)?)+/g, (match) => {
+            return '<ul style="padding-left: 20px; margin: 8px 0;">' + match.replace(/<br>/g, '') + '</ul>';
+        });
+
+        // Create a summary viewer modal overlay
+        let overlay = document.getElementById('summary-viewer-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'summary-viewer-overlay';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+            document.body.appendChild(overlay);
+        }
+        overlay.innerHTML = `
+            <div style="background:white;border-radius:12px;max-width:700px;width:90%;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                <div style="padding:20px 24px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;">
+                    <h2 style="margin:0;font-size:18px;color:var(--text-primary);">${summary.headline || 'Weekly Summary'}</h2>
+                    <button onclick="document.getElementById('summary-viewer-overlay').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#6b7280;padding:0 4px;">&times;</button>
+                </div>
+                <div style="padding:24px;overflow-y:auto;font-size:14px;line-height:1.6;color:var(--text-primary);">
+                    ${html}
+                </div>
+                <div style="padding:16px 24px;border-top:1px solid #e5e7eb;text-align:right;">
+                    <span style="font-size:12px;color:var(--text-secondary);">Created: ${new Date(summary.created).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                </div>
+            </div>
+        `;
+        overlay.style.display = 'flex';
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) overlay.remove();
+        });
     }
 
     renderSummaries() {
@@ -164,6 +217,18 @@ class SummaryManager {
 }
 
 const summaryManager = new SummaryManager();
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

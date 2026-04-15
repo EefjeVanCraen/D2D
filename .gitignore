@@ -1,12 +1,6 @@
-# Dependencies
-node_modules/
-package-lock.json
-yarn.lock
-
-# Build outputs
-dist/
-build/
-*.log
+# OS
+.DS_Store
+Thumbs.db
 
 # IDE
 .vscode/
@@ -14,22 +8,16 @@ build/
 *.swp
 *.swo
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Environment variables
+# Environment
 .env
 .env.local
 
-# Project specific
-backups/
+# Binaries & data
 *.xlsx
-excel-data.json
-*.html
-!index.html
+*.ico
+*.log
 
-# Temporary files
+# Temporary
 *.tmp
 *.bak
 *~

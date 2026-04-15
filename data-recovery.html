@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day2Day - Data Recovery</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; max-width: 900px; margin: 50px auto; padding: 20px; background: #f0f4f8; color: #2c3e50; }
+        h1 { color: #4a90e2; }
+        .card { background: white; padding: 24px; border-radius: 12px; margin: 20px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .card h2 { margin-top: 0; font-size: 18px; }
+        button { background: #4a90e2; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 14px; }
+        button:hover { background: #3a7bc8; }
+        button.danger { background: #e74c3c; }
+        button.success { background: #50c878; }
+        .ok { color: #50c878; font-weight: 600; }
+        .err { color: #e74c3c; font-weight: 600; }
+        .warn { color: #ffa500; font-weight: 600; }
+        pre { background: #f8f9fa; padding: 12px; border-radius: 8px; font-size: 12px; max-height: 300px; overflow: auto; }
+        .stat { display: inline-block; padding: 6px 14px; margin: 4px; background: #e8ecf1; border-radius: 6px; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <h1>Day2Day Data Recovery</h1>
+    <div class="card"><h2>Storage Status</h2><div id="ss">Checking...</div></div>
+    <div class="card"><h2>Current Data</h2><div id="ds">Loading...</div></div>
+    <div class="card"><h2>Daily Backups</h2><div id="db">Loading...</div></div>
+    <div class="card"><h2>Actions</h2>
+        <button onclick="exportCurrent()">Export Current Data</button>
+        <button onclick="exportBackup()">Export Latest Backup</button>
+        <button class="success" onclick="location.href='index.html'">Open Day2Day</button><br><br>
+        <button class="danger" onclick="restoreBackup()">Restore from Backup</button>
+        <button onclick="document.getElementById('rf').click()">Restore from File</button>
+        <input type="file" id="rf" accept=".json" style="display:none" onchange="restoreFile(this)">
+    </div>
+    <div class="card"><h2>Raw Data</h2><button onclick="toggleRaw()">Show/Hide</button><pre id="rd" style="display:none"></pre></div>
+    <script>
+    var SK="day2day-data",BK="day2day-daily-backups";
+    function checkStorage(){var e=document.getElementById("ss");try{localStorage.setItem("__t","1");localStorage.removeItem("__t");var u=new Blob(Object.values(localStorage)).size;e.innerHTML="<span class=ok>OK</span> Using ~"+(u/1024/1024).toFixed(2)+" MB";}catch(x){e.innerHTML="<span class=err>Error: "+x.message+"</span>";}}
+    function checkData(){var e=document.getElementById("ds");try{var r=localStorage.getItem(SK);if(!r){e.innerHTML="<span class=warn>No data found.</span>";return;}var d=JSON.parse(r);var items=[["Tasks",d.tasks],["Ideas",d.ideas],["Meetings",d.meetings],["Birthdays",d.birthdays],["Summaries",d.summaries],["Squads",d.squads],["OrgCharts",d.orgCharts],["RecycleBin",d.recycleBin],["Depts",d.departments],["Tags",d.tags]];e.innerHTML=items.map(function(i){return"<span class=stat>"+i[0]+": <b>"+(i[1]||[]).length+"</b></span>";}).join("")+"<br><br><span class=ok>Data healthy</span><br><small>Last save: "+(localStorage.getItem("day2day-last-save")||"unknown")+"</small>";}catch(x){e.innerHTML="<span class=err>"+x.message+"</span>";}}
+    function checkBackups(){var e=document.getElementById("db");try{var r=localStorage.getItem(BK);if(!r){e.innerHTML="<span class=warn>No backups yet (auto-created daily).</span>";return;}var b=JSON.parse(r);var dates=Object.keys(b).sort().reverse();e.innerHTML=dates.map(function(d){return"<span class=stat>"+d+" ("+(new Blob([b[d]]).size/1024).toFixed(1)+" KB)</span>";}).join(" ")+"<br><small>"+dates.length+" backup(s)</small>";}catch(x){e.innerHTML="<span class=err>"+x.message+"</span>";}}
+    function dl(c,f){var b=new Blob([c],{type:"application/json"});var u=URL.createObjectURL(b);var a=document.createElement("a");a.href=u;a.download=f;a.click();URL.revokeObjectURL(u);}
+    function exportCurrent(){var r=localStorage.getItem(SK);if(!r){alert("No data.");return;}dl(r,"day2day-export-"+new Date().toISOString().split("T")[0]+".json");}
+    function exportBackup(){try{var r=localStorage.getItem(BK);if(!r){alert("No backups.");return;}var b=JSON.parse(r);var l=Object.keys(b).sort().reverse()[0];if(!l){alert("Empty.");return;}dl(b[l],"day2day-backup-"+l+".json");}catch(x){alert(x.message);}}
+    function restoreBackup(){try{var r=localStorage.getItem(BK);if(!r){alert("No backups.");return;}var b=JSON.parse(r);var d=Object.keys(b).sort().reverse();var c=prompt("Backups:
+"+d.join("
+")+"
+
+Enter date (YYYY-MM-DD):");if(!c||!b[c]){alert("Invalid.");return;}if(!confirm("Replace ALL data with "+c+"?"))return;localStorage.setItem(SK,b[c]);alert("Restored!");location.reload();}catch(x){alert(x.message);}}
+    function restoreFile(input){var f=input.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(e){try{var d=JSON.parse(e.target.result);var t=d.data||d;if(!t.tasks&&!t.ideas){alert("Invalid file.");return;}if(!confirm("Replace ALL current data?"))return;localStorage.setItem(SK,JSON.stringify(t));alert("Restored!");location.reload();}catch(x){alert(x.message);}};rd.readAsText(f);}
+    function toggleRaw(){var e=document.getElementById("rd");if(e.style.display==="none"){var r=localStorage.getItem(SK);e.textContent=r?JSON.stringify(JSON.parse(r),null,2):"No data";e.style.display="block";}else{e.style.display="none";}}
+    checkStorage();checkData();checkBackups();
+    </script>
+</body>
+</html>

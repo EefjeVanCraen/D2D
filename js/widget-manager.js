@@ -5,6 +5,8 @@ class WidgetManager {
         this.draggedWidget = null;
         this.dragOffset = { x: 0, y: 0 };
         this.resizingWidget = null;
+        // Calendar month tracking
+        this.calendarDate = new Date();
         this.init();
     }
 
@@ -121,8 +123,8 @@ class WidgetManager {
         const allTasks = dataManager.getTasks();
         const tasks = this.getActiveTasks(allTasks);
         const today = new Date();
-        const currentMonth = today.getMonth();
-        const currentYear = today.getFullYear();
+        const currentMonth = this.calendarDate.getMonth();
+        const currentYear = this.calendarDate.getFullYear();
         
         const firstDay = new Date(currentYear, currentMonth, 1);
         const lastDay = new Date(currentYear, currentMonth + 1, 0);
@@ -132,7 +134,7 @@ class WidgetManager {
         let calendarHTML = `
             <div class="calendar-header">
                 <button class="calendar-nav-btn" onclick="widgetManager.prevMonth()">‹</button>
-                <span id="calendar-month-year">${today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                <span id="calendar-month-year">${this.calendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
                 <button class="calendar-nav-btn" onclick="widgetManager.nextMonth()">›</button>
             </div>
             <div class="calendar-grid">
@@ -153,7 +155,7 @@ class WidgetManager {
         for (let day = 1; day <= daysInMonth; day++) {
             const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const dayTasks = tasks.filter(t => t.dueDate === dateStr && t.status !== 'completed');
-            const isToday = day === today.getDate() && currentMonth === today.getMonth();
+            const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
             
             calendarHTML += `
                 <div class="calendar-day ${isToday ? 'today' : ''} ${dayTasks.length > 0 ? 'has-tasks' : ''}" 
@@ -783,9 +785,6 @@ class WidgetManager {
     }
 
     getActiveTasks(tasks) {
-        // Force reload data to get latest
-        dataManager.loadData();
-        
         // Filter out tasks that are in recycle bin
         const recycleBin = dataManager.getData().recycleBin || [];
         const recycleBinIds = new Set(recycleBin.filter(item => item.type === 'task').map(item => item.id));
@@ -1126,22 +1125,17 @@ class WidgetManager {
     }
 
     refreshWidgets() {
-        // Force a complete re-render of all widgets with fresh data
-        this.renderWidgets();
-        
-        // Also trigger a data refresh to ensure we have latest data
-        if (dataManager) {
-            dataManager.loadData();
-        }
+        // Re-render all widgets with current data
+        this.loadWidgets();
     }
 
     prevMonth() {
-        // Calendar navigation would be implemented here
+        this.calendarDate.setMonth(this.calendarDate.getMonth() - 1);
         this.refreshWidgets();
     }
 
     nextMonth() {
-        // Calendar navigation would be implemented here
+        this.calendarDate.setMonth(this.calendarDate.getMonth() + 1);
         this.refreshWidgets();
     }
 }

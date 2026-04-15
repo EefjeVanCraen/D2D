@@ -44,15 +44,14 @@ class DataManager {
     }
     
     setupPeriodicSave() {
-        // Save every 30 seconds as a safety measure
+        // Save every 2 minutes as a safety measure (reduced from 30s)
         setInterval(() => {
             try {
                 this.saveData();
-                console.log('Periodic auto-save completed');
             } catch (error) {
                 console.error('Error in periodic save:', error);
             }
-        }, 30000); // 30 seconds
+        }, 120000); // 2 minutes
     }
     
     ensureDefaults() {
@@ -1030,33 +1029,58 @@ class DataManager {
         }
     }
     
-    // Daily automatic backup
+    // Daily automatic backup — saves to localStorage rolling backups (no file downloads)
     setupDailyBackup() {
-        // Check if backup was already created today
         const today = new Date().toISOString().split('T')[0];
         const lastBackupDate = localStorage.getItem('day2day-last-backup-date');
-        
-        // Create backup if not done today
+
         if (lastBackupDate !== today) {
-            // Wait a moment for page to load, then create backup
-            setTimeout(async () => {
-                await this.exportToFile(true); // Silent export
+            // Wait for page to fully load, then create a silent in-memory backup
+            setTimeout(() => {
+                this.createDailyBackupToStorage();
                 localStorage.setItem('day2day-last-backup-date', today);
-                console.log('Daily backup created:', today);
-            }, 2000); // Wait 2 seconds after page load
+                console.log('Daily backup saved to localStorage:', today);
+            }, 3000);
         }
-        
-        // Schedule next check (every hour)
-        setInterval(async () => {
+
+        // Check once every 4 hours (instead of every hour)
+        setInterval(() => {
             const currentDate = new Date().toISOString().split('T')[0];
             const lastBackup = localStorage.getItem('day2day-last-backup-date');
-            
+
             if (lastBackup !== currentDate) {
-                await this.exportToFile(true);
+                this.createDailyBackupToStorage();
                 localStorage.setItem('day2day-last-backup-date', currentDate);
-                console.log('Daily backup created:', currentDate);
+                console.log('Daily backup saved to localStorage:', currentDate);
             }
-        }, 3600000); // Check every hour
+        }, 14400000); // Every 4 hours
+    }
+
+    // Save daily backup to localStorage rolling window (keeps last 7 days)
+    createDailyBackupToStorage() {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const backupKey = 'day2day-daily-backups';
+            let dailyBackups = {};
+
+            try {
+                const existing = localStorage.getItem(backupKey);
+                if (existing) dailyBackups = JSON.parse(existing);
+            } catch (e) { /* start fresh */ }
+
+            // Save today's snapshot
+            dailyBackups[today] = JSON.stringify(this.data);
+
+            // Keep only last 7 days
+            const dates = Object.keys(dailyBackups).sort().reverse();
+            if (dates.length > 7) {
+                dates.slice(7).forEach(d => delete dailyBackups[d]);
+            }
+
+            localStorage.setItem(backupKey, JSON.stringify(dailyBackups));
+        } catch (error) {
+            console.warn('Daily backup to storage failed (likely quota):', error.message);
+        }
     }
     
     // Restore from backup file

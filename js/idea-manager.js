@@ -185,15 +185,16 @@ class IdeaManager {
         if (allPeople.size === 0) {
             peopleContainer.innerHTML = '<small style="color: var(--text-secondary);">No people in selected departments</small>';
         }
-    }
 
-        // Populate tags
+        // Populate tags (called from populateSelects flow)
         const tagSelect = document.getElementById('idea-tag');
-        const tags = dataManager.getTags();
-        tagSelect.innerHTML = '<option value="">None</option>';
-        tags.forEach(tag => {
-            tagSelect.innerHTML += `<option value="${tag.name}">${tag.name}</option>`;
-        });
+        if (tagSelect) {
+            const tags = dataManager.getTags();
+            tagSelect.innerHTML = '<option value="">None</option>';
+            tags.forEach(tag => {
+                tagSelect.innerHTML += `<option value="${tag.name}">${tag.name}</option>`;
+            });
+        }
     }
 
     saveIdea() {

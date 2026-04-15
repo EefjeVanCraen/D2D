@@ -2,201 +2,134 @@
 
 A comprehensive daily task and idea management dashboard for Eefje Van Craen.
 
+**Version 2.0** — Optimized April 2026
+
+## Quick Start
+
+1. **Double-click** `launch-day2day.bat` — opens the platform AND backs up to GitHub
+2. Or open `index.html` directly in your browser
+3. **First time?** Run `setup-daily-github-backup.ps1` as Administrator to enable auto-backups
+
+## What's New in v2.0
+
+- **Fixed**: Idea modal tags not populating (critical bug)
+- **Fixed**: CET timezone now correctly handles summer time (CEST)
+- **Fixed**: Calendar prev/next month navigation actually works now
+- **Fixed**: Weekly summaries open in a proper viewer instead of alert()
+- **Fixed**: Daily backup no longer auto-downloads files (saves to localStorage instead)
+- **Optimized**: Reduced excessive data reloading (was re-parsing JSON every render)
+- **Optimized**: Periodic save reduced from 30s to 2min (less battery/CPU drain)
+- **Optimized**: Fixed event listener memory leaks on Squads/Credit Circle/Settings
+- **New**: Automatic daily GitHub backup (on launch + scheduled task)
+- **New**: Data recovery page (`data-recovery.html`)
+- **New**: 7-day rolling localStorage backup (no more surprise file downloads)
+
+## GitHub Backup System
+
+Your data is protected with **3 layers of backup**:
+
+| Layer | Method | Frequency | Location |
+|-------|--------|-----------|----------|
+| 1 | localStorage rolling backup | Daily (auto) | Browser localStorage (7 days) |
+| 2 | GitHub push | Every launch + daily 6 PM | github.com/EefjeVanCraen/D2D |
+| 3 | Manual export | On demand | JSON/Excel file download |
+
+### Setup Daily GitHub Backup
+```powershell
+# Run once as Administrator:
+.\setup-daily-github-backup.ps1
+```
+This creates a Windows Task Scheduler job that pushes to GitHub every day at 6 PM.
+
+### Manual GitHub Backup
+Double-click `BACKUP-NOW.bat` to commit and push immediately.
+
+### Data Recovery
+Open `data-recovery.html` in your browser to:
+- View storage health status
+- Export current data or daily backups
+- Restore from a daily backup or file
+- Inspect raw data
+
 ## Features
 
 ### Dashboard
-- **Customizable Widgets**: Drag and resize widgets to organize your workspace
-- **Calendar Widget**: View tasks by date with counters for active, due this week, and overdue tasks
-- **Tasks Due Today**: Quick view of today's tasks with headlines and tags
-- **Tasks This Week**: Overview of upcoming tasks
-- **Weekly Summaries**: View recent weekly summary headlines
+- Customizable drag-and-drop widgets
+- Calendar with working month navigation
+- Task counters (active, due this week, overdue)
+- Quick views for tasks, ideas, meetings, birthdays
 
 ### Task Management
-- Add, edit, delete, and complete tasks
-- Set due dates, priorities, departments, and tags
-- Filter tasks by department, tag, priority, and status
-- Recycle bin for deleted items (with restore capability)
+- Add, edit, delete, complete tasks
+- Due dates, priorities, departments, tags, people
+- Special tags for Asana-style weekly summaries
+- Filter by any combination of criteria
+- Recycle bin with restore
 
-### Ideas Management
-- Track and manage ideas with descriptions
-- Organize by department and tags
-- Filter and search functionality
-
-### Birthday Calendar
-- Track birthdays with countdowns
-- Sidebar shows countdown to your birthday (March 13) and nearest birthday
-- Add, edit, and manage birthday entries
+### Ideas, Meetings, Credit Circle, Squads, Org Charts, Birthdays
+- Full CRUD operations on all entities
+- Department/people associations
+- Create tasks from meetings, ideas, or credit circle outcomes
+- Excel import for squads
 
 ### Weekly Summaries
-- **Automatic Generation**: Every Friday at 5 PM CET, a summary is automatically created
-- Includes completed tasks, active tasks, and ideas from the week
-- View all summaries chronologically
+- Auto-generated every Friday at 5 PM CET/CEST
+- Proper summary viewer with formatted content
 
-### Data Management
-- **Local Storage**: All data is stored in browser's localStorage
-- **OneDrive Sync**: Data is automatically exported to JSON files in the project folder
-- **Monthly Backups**: Automatic monthly backups (configurable in settings)
-- **Export to Excel**: Export all data to Excel format
-- **Print Support**: Print any section of the dashboard
-
-### Customization
-- Add custom departments
-- Create custom tags
-- Set task priorities (High, Medium, Low)
-- Filter by any criteria across all sections
-
-## Getting Started
-
-### Launch the Application
-
-1. **Double-click** `launch-day2day.bat` to open in your default browser
-2. Or open `index.html` directly in your browser
-
-### Create Desktop Shortcut
-
-Run the PowerShell script to create a desktop shortcut:
-```powershell
-.\create-desktop-shortcut.ps1
-```
-
-### Pin to Taskbar
-
-1. Run the PowerShell script:
-```powershell
-.\create-taskbar-shortcut.ps1
-```
-
-2. Open Start Menu and search for "Day2Day Platform"
-3. Right-click the shortcut and select "Pin to taskbar"
-   - Or drag the shortcut from Start Menu to the taskbar
+### Settings & Customization
+- Custom departments with sub-departments and people
+- Custom tags with department associations
+- Sidebar color themes
+- Draggable sidebar navigation order
+- Resizable settings modal
 
 ## Project Structure
 
 ```
 Day2Day Platform/
-├── index.html              # Main HTML file
-├── styles/
-│   └── main.css           # Main stylesheet
+├── index.html                      # Main app
+├── data-recovery.html              # Data diagnostics & recovery
+├── styles/main.css                 # Stylesheet
 ├── js/
-│   ├── data-manager.js    # Data storage and management
-│   ├── widget-manager.js  # Widget system (drag, resize, etc.)
-│   ├── task-manager.js    # Task operations
-│   ├── idea-manager.js    # Idea operations
-│   ├── birthday-manager.js # Birthday management and countdowns
-│   ├── summary-manager.js  # Weekly summary automation
-│   └── main.js            # Main application controller
-├── CnG logo.png           # Application logo
-├── create-desktop-shortcut.ps1
-├── create-taskbar-shortcut.ps1
-├── launch-day2day.bat
+│   ├── data-manager.js             # Data storage, backup, CRUD
+│   ├── widget-manager.js           # Dashboard widgets
+│   ├── task-manager.js             # Tasks
+│   ├── idea-manager.js             # Ideas
+│   ├── meeting-manager.js          # Meetings
+│   ├── birthday-manager.js         # Birthdays
+│   ├── summary-manager.js          # Weekly summaries
+│   ├── squad-manager.js            # Squads
+│   ├── credit-circle-manager.js    # Credit Circle
+│   ├── org-chart-manager.js        # Org Charts
+│   └── main.js                     # App controller
+├── launch-day2day.bat              # Launch + backup
+├── Day2Day-Launcher.vbs            # VBS launcher + backup
+├── BACKUP-NOW.bat                  # Manual GitHub backup
+├── backup-to-github.ps1            # GitHub commit/push script
+├── setup-daily-github-backup.ps1   # Task Scheduler setup
+├── CnG logo.png                    # Logo
 └── README.md
 ```
 
-## Usage
+## Troubleshooting
 
-### Adding Tasks
-1. Navigate to the **Tasks** section
-2. Click **+ Add Task**
-3. Fill in the headline (required) and other details
-4. Set due date, priority, department, and tag as needed
-5. Click **Save**
-
-### Managing Ideas
-1. Go to the **Ideas** section
-2. Click **+ Add Idea**
-3. Enter headline and description
-4. Assign department and tag if needed
-5. Click **Save**
-
-### Customizing Widgets
-1. On the dashboard, drag widgets to reposition
-2. Resize widgets by dragging the bottom-right corner
-3. Click the settings icon (⚙️) on any widget to change its type or title
-4. Click **+ Add Widget** to add new widgets
-
-### Settings
-1. Click the **Settings** button (⚙️) in the sidebar
-2. Manage departments, tags, and backup settings
-3. Create manual backups anytime
-
-### Exporting Data
-1. Click **Export All** in the sidebar
-2. An Excel file will be downloaded with all your data
-3. Data is organized into separate sheets: Tasks, Ideas, Birthdays, Summaries
-
-### Recycle Bin
-1. Navigate to **Recycle Bin** in the sidebar
-2. View deleted items
-3. Restore items or permanently delete them
-
-## Data Storage
-
-- **Primary Storage**: Browser localStorage (persists between sessions)
-- **Backup Location**: Data is exported to JSON files in the project folder
-- **Automatic Backups**: Monthly backups are created automatically (first of each month)
-- **Manual Backups**: Create backups anytime from Settings
-
-## Weekly Summaries
-
-Weekly summaries are automatically generated every **Friday at 5 PM CET**. They include:
-- Completed tasks from the week
-- Active tasks
-- All ideas
-
-Summaries are saved and can be viewed in the **Summaries** section.
-
-## Birthday Countdowns
-
-The sidebar displays:
-- **My Birthday**: Countdown to March 13
-- **Next Birthday**: Countdown to the nearest birthday in your calendar
-
-## Filtering
-
-All sections support filtering:
-- **Search**: Text search across headlines and descriptions
-- **Department**: Filter by department
-- **Tag**: Filter by tag
-- **Priority**: Filter by priority (tasks only)
-- **Status**: Filter by status (tasks only)
+| Problem | Solution |
+|---------|----------|
+| Data not saving | Open `data-recovery.html` to check localStorage |
+| Widgets not dragging | Click on widget header, not content |
+| GitHub push fails | Run `git push origin main` manually to authenticate |
+| Wrong time displayed | Timezone uses Europe/Brussels (auto CET/CEST) |
+| Tags missing in ideas | Fixed in v2.0 — clear cache and reload |
 
 ## Technical Details
 
-- **Pure JavaScript**: No frameworks, easy to modify
-- **LocalStorage API**: Client-side data persistence
-- **SheetJS**: Excel export functionality
-- **Responsive Design**: Works on different screen sizes
-- **CET Timezone**: All times displayed in Central European Time
-
-## Customization via Cursor
-
-The codebase is structured for easy modification:
-- **Modular Design**: Each feature is in its own file
-- **Clear Separation**: Data, UI, and logic are separated
-- **Well-commented**: Code includes comments for clarity
-- **No Dependencies**: Pure JavaScript, no build process needed
-
-## Troubleshooting
-
-### Data Not Saving
-- Check browser localStorage is enabled
-- Ensure you have sufficient storage space
-- Try clearing browser cache and reloading
-
-### Widgets Not Dragging
-- Make sure you're clicking on the widget header
-- Check browser console for JavaScript errors
-
-### Weekly Summary Not Generating
-- Ensure the page is open on Friday at 5 PM CET
-- Check browser console for errors
-- Manually trigger summary creation if needed
-
-## Support
-
-For issues or modifications, use Cursor to edit the relevant JavaScript files. The code is designed to be maintainable and extensible.
+- Pure JavaScript, no frameworks
+- localStorage API for persistence
+- Intl.DateTimeFormat for proper CET/CEST timezone
+- SheetJS for Excel export
+- Git + GitHub for version-controlled backups
 
 ---
 
 **Created for Eefje Van Craen**  
-**Version 1.0**
+**Repository**: https://github.com/EefjeVanCraen/D2D

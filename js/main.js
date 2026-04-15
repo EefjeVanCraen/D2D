@@ -288,15 +288,11 @@ class Day2DayApp {
         } else if (sectionName === 'summaries') {
             summaryManager.renderSummaries();
         } else if (sectionName === 'squads') {
-            // Re-setup event listeners when section is shown
             if (squadManager) {
-                squadManager.setupEventListeners();
                 squadManager.renderSquads();
             }
         } else if (sectionName === 'credit-circle') {
-            // Re-setup event listeners when section is shown
             if (creditCircleManager) {
-                creditCircleManager.setupEventListeners();
                 creditCircleManager.renderUpdates();
             }
         } else if (sectionName === 'meetings') {
@@ -342,11 +338,32 @@ class Day2DayApp {
     }
 
     getCETTime(date) {
-        // CET is UTC+1 (or UTC+2 during DST)
-        // Simple approximation
-        const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
-        const cet = utc + (3600000 * 1); // UTC+1
-        return new Date(cet);
+        // Proper CET/CEST calculation using Intl API
+        try {
+            const formatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'Europe/Brussels',
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit',
+                hour12: false
+            });
+            const parts = formatter.formatToParts(date);
+            const get = (type) => parts.find(p => p.type === type)?.value || '0';
+            return new Date(
+                parseInt(get('year')),
+                parseInt(get('month')) - 1,
+                parseInt(get('day')),
+                parseInt(get('hour')),
+                parseInt(get('minute')),
+                parseInt(get('second'))
+            );
+        } catch (e) {
+            // Fallback: UTC+1 (CET) or UTC+2 (CEST)
+            const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+            const month = date.getMonth();
+            const isSummer = month >= 2 && month <= 9; // rough DST approximation
+            const offset = isSummer ? 2 : 1;
+            return new Date(utc + (3600000 * offset));
+        }
     }
 
     setupGreeting() {
@@ -761,12 +778,15 @@ class Day2DayApp {
         const modalContent = document.getElementById('settings-modal-content');
         modal.classList.add('active');
         this.switchSettingsTab('general');
-        
+
         // Load saved modal size
         this.loadModalSize();
-        
-        // Setup resize functionality
-        this.setupModalResize();
+
+        // Setup resize only once
+        if (!this._modalResizeInitialized) {
+            this.setupModalResize();
+            this._modalResizeInitialized = true;
+        }
     }
     
     setupModalResize() {

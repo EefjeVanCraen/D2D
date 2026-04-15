@@ -430,8 +430,6 @@ class TaskManager {
             return;
         }
 
-        // Force reload data
-        dataManager.loadData();
         let tasks = dataManager.getTasks();
         
         // Filter out tasks in recycle bin
