@@ -682,12 +682,12 @@ class Day2DayApp {
     
     resetSidebarColors() {
         const defaultColors = {
-            bgTop: '#ffffff',
-            bgBottom: '#f9fafb',
-            greetingColor1: '#4a90e2',
-            greetingColor2: '#7b68ee',
-            navActiveColor: '#4a90e2',
-            navHoverColor: '#4a90e2',
+            bgTop: '#0f172a',
+            bgBottom: '#1e293b',
+            greetingColor1: '#6366f1',
+            greetingColor2: '#8b5cf6',
+            navActiveColor: '#6366f1',
+            navHoverColor: '#6366f1',
             birthdayBgTop: '#fce4ec',
             birthdayBgBottom: '#f8bbd0',
             birthdayTextColor: '#c2185b'
@@ -728,11 +728,11 @@ class Day2DayApp {
         const birthdayCountdown = document.querySelector('.birthday-countdown');
         
         if (sidebar) {
-            sidebar.style.background = `linear-gradient(180deg, ${colors.bgTop || '#ffffff'} 0%, ${colors.bgBottom || '#f9fafb'} 100%)`;
+            sidebar.style.background = `linear-gradient(180deg, ${colors.bgTop || '#0f172a'} 0%, ${colors.bgBottom || '#1e293b'} 100%)`;
         }
-        
+
         if (greeting) {
-            greeting.style.background = `linear-gradient(135deg, ${colors.greetingColor1 || '#4a90e2'} 0%, ${colors.greetingColor2 || '#7b68ee'} 100%)`;
+            greeting.style.background = `linear-gradient(135deg, ${colors.greetingColor1 || '#6366f1'} 0%, ${colors.greetingColor2 || '#8b5cf6'} 100%)`;
         }
         
         if (birthdayCountdown) {
@@ -744,11 +744,12 @@ class Day2DayApp {
         style.id = 'custom-sidebar-colors';
         style.textContent = `
             .nav-btn.active {
-                background: linear-gradient(135deg, ${colors.navActiveColor || '#4a90e2'} 0%, ${colors.navActiveColor || '#4a90e2'} 100%) !important;
+                background: ${colors.navActiveColor || '#6366f1'} !important;
+                color: #ffffff !important;
             }
-            .nav-btn:hover {
-                background: linear-gradient(90deg, ${this.hexToRgba(colors.navHoverColor || '#4a90e2', 0.1)} 0%, ${this.hexToRgba(colors.navHoverColor || '#4a90e2', 0.05)} 100%) !important;
-                color: ${colors.navHoverColor || '#4a90e2'} !important;
+            .nav-btn:hover:not(.active) {
+                background: ${this.hexToRgba(colors.navHoverColor || '#6366f1', 0.15)} !important;
+                color: rgba(255,255,255,0.95) !important;
             }
             .countdown-item span {
                 color: ${colors.birthdayTextColor || '#c2185b'} !important;
