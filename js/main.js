@@ -726,43 +726,107 @@ class Day2DayApp {
         const sidebar = document.querySelector('.sidebar');
         const greeting = document.querySelector('.greeting');
         const birthdayCountdown = document.querySelector('.birthday-countdown');
-        
+
+        const bgTop = colors.bgTop || '#0f172a';
+        const bgBottom = colors.bgBottom || '#1e293b';
+
         if (sidebar) {
-            sidebar.style.background = `linear-gradient(180deg, ${colors.bgTop || '#0f172a'} 0%, ${colors.bgBottom || '#1e293b'} 100%)`;
+            sidebar.style.background = `linear-gradient(180deg, ${bgTop} 0%, ${bgBottom} 100%)`;
         }
 
         if (greeting) {
             greeting.style.background = `linear-gradient(135deg, ${colors.greetingColor1 || '#6366f1'} 0%, ${colors.greetingColor2 || '#8b5cf6'} 100%)`;
         }
-        
+
         if (birthdayCountdown) {
             birthdayCountdown.style.background = `linear-gradient(135deg, ${colors.birthdayBgTop || '#fce4ec'} 0%, ${colors.birthdayBgBottom || '#f8bbd0'} 100%)`;
         }
-        
-        // Apply to active nav buttons and birthday countdown text
+
+        // Auto-detect if sidebar background is light or dark and adapt all text colors
+        const isDark = this.isColorDark(bgTop);
+        const textColor = isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.7)';
+        const textColorHover = isDark ? 'rgba(255,255,255,0.95)' : 'rgba(15,23,42,0.95)';
+        const textColorMuted = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(15,23,42,0.5)';
+        const borderColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.1)';
+        const bgSubtle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.04)';
+        const bgSubtleBorder = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
+        const inputBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.05)';
+        const inputBorder = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(15,23,42,0.12)';
+        const scrollbarThumb = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(15,23,42,0.15)';
+
+        // Apply adaptive sidebar colors via dynamic stylesheet
         const style = document.createElement('style');
         style.id = 'custom-sidebar-colors';
         style.textContent = `
+            .nav-btn {
+                color: ${textColor} !important;
+            }
             .nav-btn.active {
                 background: ${colors.navActiveColor || '#6366f1'} !important;
                 color: #ffffff !important;
             }
             .nav-btn:hover:not(.active) {
                 background: ${this.hexToRgba(colors.navHoverColor || '#6366f1', 0.15)} !important;
-                color: rgba(255,255,255,0.95) !important;
+                color: ${textColorHover} !important;
+            }
+            .sidebar-filter label {
+                color: ${textColorMuted} !important;
+            }
+            .sidebar-filter select {
+                background: ${inputBg} !important;
+                border: 1px solid ${inputBorder} !important;
+                color: ${textColorHover} !important;
+            }
+            .sidebar-filter select option {
+                background: ${isDark ? '#1e293b' : '#ffffff'};
+                color: ${isDark ? '#e2e8f0' : '#1e293b'};
+            }
+            .countdown-item label {
+                color: ${textColorMuted} !important;
             }
             .countdown-item span {
                 color: ${colors.birthdayTextColor || '#c2185b'} !important;
             }
+            .birthday-countdown {
+                border-color: ${isDark ? 'rgba(244, 63, 94, 0.2)' : 'rgba(244, 63, 94, 0.3)'} !important;
+            }
+            .sidebar-actions {
+                border-top-color: ${borderColor} !important;
+            }
+            .action-btn {
+                background: ${bgSubtle} !important;
+                border-color: ${bgSubtleBorder} !important;
+                color: ${isDark ? 'rgba(255,255,255,0.6)' : 'rgba(15,23,42,0.6)'} !important;
+            }
+            .action-btn:hover {
+                background: ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.08)'} !important;
+                color: ${textColorHover} !important;
+            }
+            .sidebar::-webkit-scrollbar-thumb {
+                background: ${scrollbarThumb} !important;
+            }
+            .user-name, .greeting {
+                color: ${isDark ? '#fff' : '#fff'} !important;
+            }
         `;
-        
+
         // Remove old style if exists
         const oldStyle = document.getElementById('custom-sidebar-colors');
         if (oldStyle) {
             oldStyle.remove();
         }
-        
+
         document.head.appendChild(style);
+    }
+
+    isColorDark(hex) {
+        // Calculate perceived brightness (0 = black, 1 = white)
+        if (!hex || hex.length < 7) return true;
+        const r = parseInt(hex.slice(1, 3), 16) / 255;
+        const g = parseInt(hex.slice(3, 5), 16) / 255;
+        const b = parseInt(hex.slice(5, 7), 16) / 255;
+        const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+        return luminance < 0.5;
     }
     
     hexToRgba(hex, alpha) {
