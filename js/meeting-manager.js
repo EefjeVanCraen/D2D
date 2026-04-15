@@ -64,7 +64,6 @@ class MeetingManager {
                 document.getElementById('meeting-internal-external').value = meeting.internalExternal || 'Internal';
                 document.getElementById('meeting-department').value = meeting.department || '';
                 document.getElementById('meeting-description').value = meeting.description || '';
-                document.getElementById('meeting-special-tag').value = meeting.specialTag || '';
             }
         } else {
             title.textContent = 'Add Meeting';
@@ -166,8 +165,7 @@ class MeetingManager {
             internalExternal: document.getElementById('meeting-internal-external').value || 'Internal',
             department: document.getElementById('meeting-department').value,
             description: document.getElementById('meeting-description').value.trim(),
-            people: people,
-            specialTag: document.getElementById('meeting-special-tag').value || null
+            people: people
         };
 
         if (this.currentMeetingId) {

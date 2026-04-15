@@ -62,7 +62,6 @@ Open `data-recovery.html` in your browser to:
 ### Task Management
 - Add, edit, delete, complete tasks
 - Due dates, priorities, departments, tags, people
-- Special tags for Asana-style weekly summaries
 - Filter by any combination of criteria
 - Recycle bin with restore
 

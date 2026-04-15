@@ -297,8 +297,6 @@ class Day2DayApp {
             }
         } else if (sectionName === 'meetings') {
             meetingManager.renderMeetings();
-        } else if (sectionName === 'asana') {
-            this.renderAsana();
         } else if (sectionName === 'birthdays') {
             birthdayManager.renderBirthdays();
         } else if (sectionName === 'org-charts') {
@@ -1525,18 +1523,6 @@ class Day2DayApp {
         const printBtn = document.getElementById('print-btn');
         if (printBtn) {
             printBtn.addEventListener('click', () => window.print());
-        }
-    }
-
-    renderAsana() {
-        const container = document.getElementById('asana-content');
-        if (!container) return;
-
-        // Use the widget manager's Asana content method
-        if (widgetManager) {
-            container.innerHTML = widgetManager.getAsanaContent();
-        } else {
-            container.innerHTML = '<p>Loading...</p>';
         }
     }
 

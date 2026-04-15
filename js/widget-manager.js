@@ -78,8 +78,7 @@ class WidgetManager {
             'meetings': 'Meetings',
             'org-charts': 'Org Charts',
             'summaries': 'Weekly Summaries',
-            'birthdays': 'Birthdays',
-            'asana': 'Asana'
+            'birthdays': 'Birthdays'
         };
         return titles[type] || 'Widget';
     }
@@ -112,8 +111,6 @@ class WidgetManager {
                 return this.getSummariesContent();
             case 'birthdays':
                 return this.getBirthdaysContent();
-            case 'asana':
-                return this.getAsanaContent();
             default:
                 return '<p>Widget content</p>';
         }
@@ -669,121 +666,6 @@ class WidgetManager {
         return tagsHtml ? `<div style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px;">${tagsHtml}</div>` : '';
     }
 
-    getAsanaContent() {
-        const specialTagLabels = {
-            'concerning-me': 'The one thing concerning me',
-            'need-to-know': 'The thing I really need you to know',
-            'want-to-know': 'The thing I really want to know',
-            'celebrate': 'The one thing I want to celebrate',
-            'random': 'The one random thing'
-        };
-
-        // Get all items with special tags
-        const tasks = dataManager.getTasks().filter(t => t.specialTag);
-        const meetings = dataManager.getMeetings().filter(m => m.specialTag);
-        const ideas = dataManager.getIdeas().filter(i => i.specialTag);
-
-        // Combine all items with their type
-        const allItems = [
-            ...tasks.map(t => ({ ...t, itemType: 'task' })),
-            ...meetings.map(m => ({ ...m, itemType: 'meeting' })),
-            ...ideas.map(i => ({ ...i, itemType: 'idea' }))
-        ];
-
-        // Group by week (Monday-Friday)
-        const weeksMap = new Map();
-
-        allItems.forEach(item => {
-            // Get date from item (dueDate for tasks, date for meetings, created for ideas)
-            let itemDate;
-            if (item.itemType === 'task' && item.dueDate) {
-                itemDate = new Date(item.dueDate);
-            } else if (item.itemType === 'meeting' && item.date) {
-                itemDate = new Date(item.date);
-            } else if (item.itemType === 'idea' && item.created) {
-                itemDate = new Date(item.created);
-            } else {
-                return; // Skip items without dates
-            }
-
-            // Get Monday of the week (week starts on Monday)
-            const monday = new Date(itemDate);
-            const dayOfWeek = itemDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-            const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust to Monday
-            monday.setDate(itemDate.getDate() + diff);
-            monday.setHours(0, 0, 0, 0);
-
-            // Get Friday of the week
-            const friday = new Date(monday);
-            friday.setDate(monday.getDate() + 4); // Friday is 4 days after Monday
-
-            const weekKey = monday.toISOString().split('T')[0];
-
-            if (!weeksMap.has(weekKey)) {
-                weeksMap.set(weekKey, {
-                    monday,
-                    friday,
-                    items: {}
-                });
-            }
-
-            const week = weeksMap.get(weekKey);
-            if (!week.items[item.specialTag]) {
-                week.items[item.specialTag] = [];
-            }
-            week.items[item.specialTag].push(item);
-        });
-
-        // Sort weeks by date (newest first)
-        const sortedWeeks = Array.from(weeksMap.entries())
-            .sort((a, b) => new Date(b[0]) - new Date(a[0]))
-            .slice(0, 4); // Show last 4 weeks
-
-        if (sortedWeeks.length === 0) {
-            return '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No items with special tags found.</p>';
-        }
-
-        let html = '';
-        sortedWeeks.forEach(([weekKey, week]) => {
-            const weekLabel = `${week.monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${week.friday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
-            
-            html += `<div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color-light);">`;
-            html += `<h4 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: var(--primary-color);">Week: ${weekLabel}</h4>`;
-
-            // Sort special tags in order
-            const tagOrder = ['concerning-me', 'need-to-know', 'want-to-know', 'celebrate', 'random'];
-            
-            tagOrder.forEach(tagKey => {
-                if (week.items[tagKey] && week.items[tagKey].length > 0) {
-                    const tagLabel = specialTagLabels[tagKey];
-                    html += `<div style="margin-bottom: 12px;">`;
-                    html += `<div style="font-weight: 600; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;">${tagLabel}</div>`;
-                    
-                    week.items[tagKey].forEach(item => {
-                        const title = item.headline || item.title || 'Untitled';
-                        const typeLabel = item.itemType === 'task' ? 'Task' : item.itemType === 'meeting' ? 'Meeting' : 'Idea';
-                        const typeColor = item.itemType === 'task' ? '#4a90e2' : item.itemType === 'meeting' ? '#9b59b6' : '#f39c12';
-                        
-                        html += `<div style="padding: 8px; margin-bottom: 6px; background: var(--card-bg); border-left: 3px solid ${typeColor}; border-radius: 4px; font-size: 12px;">`;
-                        html += `<div style="font-weight: 600; margin-bottom: 4px;">${title}</div>`;
-                        html += `<div style="font-size: 10px; color: var(--text-secondary);">${typeLabel}</div>`;
-                        if (item.description && item.description.length > 0) {
-                            const shortDesc = item.description.length > 100 ? item.description.substring(0, 100) + '...' : item.description;
-                            html += `<div style="margin-top: 4px; font-size: 11px; color: var(--text-secondary);">${shortDesc}</div>`;
-                        }
-                        html += `</div>`;
-                    });
-                    
-                    html += `</div>`;
-                }
-            });
-
-            html += `</div>`;
-        });
-
-        return html;
-    }
-
     getActiveTasks(tasks) {
         // Filter out tasks that are in recycle bin
         const recycleBin = dataManager.getData().recycleBin || [];
@@ -988,7 +870,6 @@ class WidgetManager {
             <div class="form-group">
                 <label>Widget Type:</label>
                 <select id="widget-type-select">
-                    <option value="asana" ${widget.type === 'asana' ? 'selected' : ''}>Asana</option>
                     <option value="tasks-all" ${widget.type === 'tasks-all' ? 'selected' : ''}>All Tasks</option>
                     <option value="tasks-active" ${widget.type === 'tasks-active' ? 'selected' : ''}>Active Tasks</option>
                     <option value="birthdays" ${widget.type === 'birthdays' ? 'selected' : ''}>Birthdays</option>

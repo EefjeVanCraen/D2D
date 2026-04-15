@@ -170,6 +170,13 @@ class SummaryManager {
         });
     }
 
+    deleteSummary(summaryId) {
+        if (!confirm('Delete this weekly summary?')) return;
+        dataManager.deleteSummary(summaryId);
+        this.renderSummaries();
+        widgetManager.refreshWidgets();
+    }
+
     renderSummaries() {
         const container = document.getElementById('summaries-list');
         if (!container) return;
@@ -207,6 +214,7 @@ class SummaryManager {
                     </div>
                     <div class="card-actions">
                         <button class="card-btn" onclick="summaryManager.openSummary('${summary.id}')" title="View">👁️</button>
+                        <button class="card-btn" onclick="summaryManager.deleteSummary('${summary.id}')" title="Remove" style="color: #e74c3c;">🗑️</button>
                     </div>
                 </div>
             `;

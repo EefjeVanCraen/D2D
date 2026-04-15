@@ -254,7 +254,6 @@ class DataManager {
             dueDate: task.dueDate || '',
             priority: task.priority || 'medium',
             tag: task.tag || '',
-            specialTag: task.specialTag || null,
             departments: task.departments || [],
             people: task.people || []
         };
@@ -521,6 +520,12 @@ class DataManager {
         this.data.summaries.push(summary);
         this.saveData();
         return summary;
+    }
+
+    deleteSummary(summaryId) {
+        if (!this.data.summaries) return;
+        this.data.summaries = this.data.summaries.filter(s => s.id !== summaryId);
+        this.saveData();
     }
 
     // Org Charts

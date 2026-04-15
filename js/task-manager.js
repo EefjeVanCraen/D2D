@@ -73,14 +73,12 @@ class TaskManager {
                 const dueDateEl = document.getElementById('task-due-date');
                 const priorityEl = document.getElementById('task-priority');
                 const tagEl = document.getElementById('task-tag');
-                const specialTagEl = document.getElementById('task-special-tag');
-                
+
                 if (headlineEl) headlineEl.value = task.headline || '';
                 if (descEl) descEl.value = task.description || '';
                 if (dueDateEl) dueDateEl.value = task.dueDate || '';
                 if (priorityEl) priorityEl.value = task.priority || 'medium';
                 if (tagEl) tagEl.value = task.tag || '';
-                if (specialTagEl) specialTagEl.value = task.specialTag || '';
             }
         } else {
             title.textContent = 'Add Task';
@@ -220,7 +218,6 @@ class TaskManager {
             departments: departments,
             people: people,
             tag: document.getElementById('task-tag')?.value || '',
-            specialTag: document.getElementById('task-special-tag')?.value || null,
             status: this.currentTaskId ? (dataManager.getTasks().find(t => t.id === this.currentTaskId)?.status || 'active') : 'active'
         };
 

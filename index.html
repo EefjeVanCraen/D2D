@@ -78,10 +78,6 @@
                     <span class="icon">🤝</span>
                     <span>Meetings</span>
                 </button>
-                <button class="nav-btn" data-section="asana">
-                    <span class="icon">📋</span>
-                    <span>Asana</span>
-                </button>
                 <button class="nav-btn" data-section="birthdays">
                     <span class="icon">🎂</span>
                     <span>Birthdays</span>
@@ -199,14 +195,6 @@
                     <button class="btn-primary" id="add-meeting-btn">+ Add Meeting</button>
                 </div>
                 <div class="meetings-list" id="meetings-list"></div>
-            </section>
-
-            <!-- Asana View -->
-            <section id="asana-section" class="content-section">
-                <div class="section-header">
-                    <h2>Asana - Weekly Summaries</h2>
-                </div>
-                <div id="asana-content" style="padding: 20px;"></div>
             </section>
 
             <!-- Birthdays View -->
@@ -563,17 +551,6 @@
                             <option value="">None</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Special Tag (Optional)</label>
-                        <select id="task-special-tag">
-                            <option value="">None</option>
-                            <option value="concerning-me">The one thing concerning me</option>
-                            <option value="need-to-know">The thing I really need you to know</option>
-                            <option value="want-to-know">The thing I really want to know</option>
-                            <option value="celebrate">The one thing I want to celebrate</option>
-                            <option value="random">The one random thing</option>
-                        </select>
-                    </div>
                     <div class="form-actions">
                         <button type="submit" class="btn-primary">Save</button>
                         <button type="button" class="btn-secondary" id="task-cancel-btn">Cancel</button>
@@ -618,17 +595,6 @@
                         <label>Tag</label>
                         <select id="idea-tag">
                             <option value="">None</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Special Tag (Optional)</label>
-                        <select id="idea-special-tag">
-                            <option value="">None</option>
-                            <option value="concerning-me">The one thing concerning me</option>
-                            <option value="need-to-know">The thing I really need you to know</option>
-                            <option value="want-to-know">The thing I really want to know</option>
-                            <option value="celebrate">The one thing I want to celebrate</option>
-                            <option value="random">The one random thing</option>
                         </select>
                     </div>
                     <div class="form-actions">
@@ -699,7 +665,6 @@
                         <label>Widget Type *</label>
                         <select id="new-widget-type" required>
                             <option value="">Select Widget Type</option>
-                            <option value="asana">Asana</option>
                             <option value="tasks-all">All Tasks</option>
                             <option value="tasks-active">Active Tasks</option>
                             <option value="birthdays">Birthdays</option>
@@ -868,17 +833,6 @@
                             <small style="color: var(--text-secondary);">Select a department to see people</small>
                         </div>
                         <small style="color: var(--text-secondary); font-size: 12px;">People are shown based on selected department/sub-department</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Special Tag (Optional)</label>
-                        <select id="meeting-special-tag">
-                            <option value="">None</option>
-                            <option value="concerning-me">The one thing concerning me</option>
-                            <option value="need-to-know">The thing I really need you to know</option>
-                            <option value="want-to-know">The thing I really want to know</option>
-                            <option value="celebrate">The one thing I want to celebrate</option>
-                            <option value="random">The one random thing</option>
-                        </select>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn-primary">Save</button>

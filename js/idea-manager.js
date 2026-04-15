@@ -56,7 +56,6 @@ class IdeaManager {
                 document.getElementById('idea-headline').value = idea.headline || '';
                 document.getElementById('idea-description').value = idea.description || '';
                 document.getElementById('idea-tag').value = idea.tag || '';
-                document.getElementById('idea-special-tag').value = idea.specialTag || '';
             }
         } else {
             title.textContent = 'Add Idea';
@@ -230,8 +229,7 @@ class IdeaManager {
             description: document.getElementById('idea-description').value.trim(),
             departments: departments,
             people: people,
-            tag: document.getElementById('idea-tag').value,
-            specialTag: document.getElementById('idea-special-tag').value || null
+            tag: document.getElementById('idea-tag').value
         };
 
         if (this.currentIdeaId) {
